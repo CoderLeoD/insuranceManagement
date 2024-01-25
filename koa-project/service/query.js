@@ -1,8 +1,9 @@
+const { trimEnd, endsWith } = require('lodash')
 const db = require('../db/mysql')
  
 class CommonModel {
   getListQuery(queryObj) {
-    const {tableName, searchTitle, searchValue, pageNum, pageSize} = queryObj
+    const {tableName, searchTitle, searchValue, pageNum, pageSize} = queryObj;
     let queryStr = "";
     if (searchValue && pageNum && pageSize) {
       queryStr = `select * from ${tableName} where ${searchTitle} LIKE '%${searchValue}%' limit ${(pageNum - 1) * pageSize}, ${pageSize}`;
@@ -83,24 +84,23 @@ class CommonModel {
     // all_users 表 删除
     return await db.query(`delete from all_users where id=${id}`);
   }
-  delLastChar(str) {
-    return str.substring(0, str.length - 1);
-  }
-  insertSQL(tableName, columns) {
+  // 动态的 insert, 一次添加一条
+  insertSQL(tableName, columnsObj) {
     let col_str = '', val_str = '';
-    for (const key in columns) {
-      if (Object.hasOwnProperty.call(columns, key)) {
-        const value = columns[key];
+    for (const key in columnsObj) {
+      if (Object.hasOwnProperty.call(columnsObj, key)) {
+        const value = columnsObj[key];
         if (value) {
           col_str += `${key},`;
           val_str += `'${value}',`;
         }
       }
     }
-    col_str = this.delLastChar(col_str);
-    val_str = this.delLastChar(val_str);
+    col_str = trimEnd(col_str, ',');
+    val_str = trimEnd(val_str, ',');
     return `INSERT INTO ${tableName} (${col_str}) VALUES (${val_str})`;
   }
+  // 全量的 insert, 一次添加多条, 值不存在时, 设置默认值
   insertMoreSQL(tableName, columns, user_id, dataSource) {
     /**
      * tableName, columns, user_id, dataSource
@@ -115,18 +115,18 @@ class CommonModel {
     dataSource?.forEach(ele => {
       let values = '';
       columns.forEach(col => {
-        values += (col.includes('id') ? `${ele[col] || null},` : `'${ele[col] || ''}',`);
+        values += (endsWith(col, 'id') ? `${ele[col] || null},` : `'${ele[col] || ''}',`);
       })
-      query_str += `(${user_id}, ${this.delLastChar(values)}),`;
+      query_str += `(${user_id}, ${trimEnd(values, ',')}),`;
     });
-    return `INSERT INTO ${tableName} (user_id, ${columns.join(',')}) VALUES ${this.delLastChar(query_str)}`;
+    return `INSERT INTO ${tableName} (user_id, ${columns.join(',')}) VALUES ${trimEnd(query_str, ',')}`;
   }
   async addUser(params) {
     /**
      * 有三张表需要添加: all_users, user_insurance 和 special_days
      * 一条数据需要整理: address_city (前端传过来是数组, 数据库存储为字符串)
      */
-    const { user, gender, age, phone, num_id, status_type, grade_type, address_city, address_street, specialDays, insurances } = params;
+    const { user, gender, age, phone, identity_num, status_type, grade_type, address_city, address_street, specialDays, insurances } = params;
 
     // 0, 先根据 phone 查询是否已存在对应客户
     const selPhone = await db.query(`select * from all_users where phone='${phone}'`);
@@ -145,7 +145,7 @@ class CommonModel {
       gender,
       age,
       phone,
-      num_id,
+      identity_num,
       status_type,
       grade_type,
       address_city: JSON.stringify(address_city),
@@ -227,7 +227,7 @@ class CommonModel {
     };
   }
   async delNotInDataSource(tableName, userId, dataSource) {
-    const currentIds = [], deleteIds = []
+    const currentIds = [], deleteIds = [];
     dataSource.filter(v => v.id).forEach(v => {
       currentIds.push(v.id)
     })
@@ -250,73 +250,87 @@ class CommonModel {
       code: 200
     }
   }
-
+  // 动态的 更新 sql字段
+  updateColumnFormat(columns, ele) {
+    let update_col = '';
+    columns.forEach(v => {
+      if (ele[v]) {
+        update_col += endsWith(v, 'id') ? `${v}=${ele[v]},` : `${v}='${ele[v]}',`;
+      }
+    })
+    update_col = trimEnd(update_col, ',');
+    return update_col;
+  }
+  async editSecondaryTable(tableName, user_id, dataSource, columns) {
+    // 删除不在数据源中的元素
+    const del = await this.delNotInDataSource(tableName, user_id, dataSource);
+    if (200 !== del.code) {
+      return del;
+    }
+    // 更新 和 添加 操作
+    for (let i = 0; i < dataSource.length; i++) {
+      const ele = dataSource[i];
+      let queryRes;
+      // 是否存在 id
+      if (ele.id) {
+        // id 存在, 则 更新
+        queryRes = await db.query(`update ${tableName} set ${this.updateColumnFormat(columns, ele)} where id=${ele.id}`);
+      } else {
+        // id 不存在, 则 添加
+        const columnsObj = {
+          user_id,
+        }
+        columns.forEach(v => columnsObj[v] = ele[v]);
+        queryRes = await db.query(this.insertSQL(tableName, columnsObj));
+      }
+      if (200 !== queryRes.code) {
+        return queryRes;
+      }
+    }
+    return {
+      code: 200,
+    }
+  }
   async editUser(params) {
     /**
      * 有三张表需要添加: all_users, user_insurance 和 special_days
      * 一条数据需要整理: address_city (前端传过来是数组, 数据库存储为字符串)
      */
-    const { id, user, gender, age, phone, num_id, status_type, grade_type, address_city, address_street, specialDays, insurances } = params;
-
-    const address_city_str = JSON.stringify(address_city);
+    const { id, user, gender, age, phone, identity_num, status_type, grade_type, address_city, address_street, specialDays, insurances } = params;
 
     // 1, all_users 表 更新
-    const updateUser = await db.query(`update all_users set user='${user}', gender='${gender}', age=${age}, phone='${phone}', num_id='${num_id}', status_type='${status_type}', grade_type='${grade_type}', address_city='${address_city_str}', address_street='${address_street}' where id=${id}`);
+    // const updateUser = await db.query(`update all_users set user='${user}', gender='${gender}', age=${age}, phone='${phone}', identity_num='${identity_num}', status_type='${status_type}', grade_type='${grade_type}', address_city='${address_city_str}', address_street='${address_street}' where id=${id}`);
+    const userColumns = {
+      user,
+      gender,
+      age,
+      phone,
+      identity_num,
+      status_type,
+      grade_type,
+      address_city: JSON.stringify(address_city),
+      address_street,
+    }
+    const updateUser = await db.query(`update all_users set ${this.updateColumnFormat(Object.keys(userColumns), userColumns)} where id=${id}`);
     if (200 !== updateUser.code) {
       return updateUser;
     }
 
     // 2, special_days 表 更新
     if (specialDays?.length) {
-      // 删除不在数据源中的元素
-      const del = await this.delNotInDataSource('special_days', id, specialDays);
-      if (200 !== del.code) {
-        return del;
-      }
-      // 更新 和 添加 操作
-      for (let i = 0; i < specialDays.length; i++) {
-        const ele = specialDays[i];
-        // 是否存在 id
-        if (ele.id) {
-          // id 存在, 则 更新
-          const updateSpecialDays = await db.query(`update special_days set name='${ele.name}', date='${ele.date}' where id=${ele.id}`);
-          if (200 !== updateSpecialDays.code) {
-            return updateSpecialDays;
-          }
-        } else {
-          // id 不存在, 则 添加
-          const addSpecialDays = await db.query(`INSERT INTO special_days (user_id, name, date) VALUES (${id}, '${ele.name}', '${ele.date}')`);
-          if (200 !== addSpecialDays.code) {
-            return addSpecialDays;
-          }
-        }
+      const updateColumns = ['name', 'date'];
+      const updateSpecialDays = await this.editSecondaryTable('special_days', id, specialDays, updateColumns);
+      if (200 !== updateSpecialDays.code) {
+        return updateSpecialDays;
       }
     }
 
     // 3, user_insurance 表 更新
     if (insurances?.length) {
-      // 删除不在数据源中的元素
-      const del = await this.delNotInDataSource('user_insurance', id, insurances);
-      if (200 !== del.code) {
-        return del;
-      }
-      // 更新 和 添加 操作
-      for (let i = 0; i < insurances.length; i++) {
-        const ele = insurances[i];
-        // 是否存在 id
-        if (ele.id) {
-          // id 存在, 则 更新
-          const updateInsurances = await db.query(`update user_insurance set insurance_id=${ele.insurance_id}, insurance_name='${ele.insurance_name}', start_time='${ele.start_time}', end_time='${ele.end_time}', first_money='${ele.first_money}', com_money='${ele.com_money}' where id=${ele.id}`);
-          if (200 !== updateInsurances.code) {
-            return updateInsurances;
-          }
-        } else {
-          // id 不存在, 则 添加
-          const addInsurances = await db.query(`INSERT INTO user_insurance (user_id, insurance_id, insurance_name, start_time, end_time, first_money, com_money) VALUES (${id}, ${ele.insurance_id}, '${ele.insurance_name}', '${ele.start_time}', '${ele.end_time}', '${ele.first_money}', '${ele.com_money}')`);
-          if (200 !== addInsurances.code) {
-            return addInsurances;
-          }
-        }
+      const updateColumns = ['insurance_id', 'insurance_name', 'start_time', 'end_time', 'first_money', 'com_money'];
+      const updateInsurances = await this.editSecondaryTable('user_insurance', id, insurances, updateColumns);
+      if (200 !== updateInsurances.code) {
+        return updateInsurances;
       }
     }
 

@@ -144,7 +144,7 @@ function handleCurrentChange(val) {
               {{ scope.row.phone.substring(0, 3) }} {{ scope.row.phone.substring(3, 7) }} {{ scope.row.phone.substring(7) }}
             </template>
           </el-table-column>
-          <el-table-column prop="num_id" label="身份证号" width="200" />
+          <el-table-column prop="identity_num" label="身份证号" width="200" />
           <el-table-column label="操作" min-width="200">
             <template #default="scope">
               <el-button

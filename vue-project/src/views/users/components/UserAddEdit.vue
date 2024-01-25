@@ -95,7 +95,7 @@ function initFormData() {
     userForm.gender = userDetail.gender
     userForm.age = userDetail.age
     userForm.phone = userDetail.phone
-    userForm.num_id = userDetail.num_id
+    userForm.identity_num = userDetail.identity_num
     userForm.status_type = userDetail.status_type
     userForm.grade_type = userDetail.grade_type
     userForm.address_city = JSON.parse(userDetail.address_city)
@@ -131,7 +131,7 @@ const userForm = reactive({
   gender: '',
   age: '',
   phone: '',
-  num_id: '',
+  identity_num: '',
   status_type: '',// 1, 已缴费, 2, 意向客户
   grade_type: '',// A, B, C
   address_city: [],
@@ -270,7 +270,7 @@ function dealWithUserForm() {
             <el-input maxlength="11" v-model="userForm.phone" placeholder="客户电话" />
           </el-form-item>
           <el-form-item label="身份证号:">
-            <el-input maxlength="18" v-model="userForm.num_id" placeholder="客户身份证号" />
+            <el-input maxlength="18" v-model="userForm.identity_num" placeholder="客户身份证号" />
           </el-form-item>
           <el-form-item label="意向类型:">
             <el-select

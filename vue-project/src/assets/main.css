@@ -1,0 +1,41 @@
+@import './base.css';
+
+html, body, #app {
+  width: 100%;
+  height: 100%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+ul, li {
+  list-style-type: none;
+}
+
+img {
+  vertical-align: top;
+}
+
+/* 管理类页面公共样式 */
+.mange_wrap {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 32px 1fr 32px;
+  row-gap: 16px;
+  .mange_search {
+    /* .el-input-group__append {
+      background-color: rgb(40, 56, 75) !important;
+      color: #fff !important;
+    } */
+  }
+  .mange_con {}
+  .mange_footer {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+  }
+}

@@ -1,23 +1,23 @@
 <script setup>
-import { getCurrentInstance, ref } from 'vue';
-import LabelInput from '@/components/LabelInput.vue';
+import { ref } from 'vue'
+import LabelInput from '@/components/LabelInput.vue'
+import { useRouter } from 'vue-router'
 
-const { $router } = getCurrentInstance().proxy;
+const router = useRouter()
 
-const username = ref('');
-const password = ref('');
+const username = ref('')
+const password = ref('')
 
 function loginAction() {
-  console.log('xdl-来了, 老弟')
   if ('admin' === username.value && 'admin123' === password.value) {
-    $router.push({
+    router.push({
       name: "main",
       // query: {
       //   pageType: "compare",
       //   id: item.Id,
       //   termName: item.Name,
       // },
-    });
+    })
   }
 }
 

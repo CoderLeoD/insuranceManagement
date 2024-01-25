@@ -43,7 +43,6 @@ function backList() {
 }
 
 function commitAction(userFormMsg) {
-  console.log('xdl+++++++++++前端参数', userFormMsg)
   api.editUser(userFormMsg).then(res => {
     if (200 === res.code) {
       dialogVisible.value = true

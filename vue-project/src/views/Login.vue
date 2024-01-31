@@ -9,7 +9,7 @@ const username = ref('')
 const password = ref('')
 
 function loginAction() {
-  if ('admin' === username.value && 'admin123' === password.value) {
+  if ('admin' === username.value && 'nizhaoshui' === password.value) {
     router.push({
       name: "main",
       // query: {

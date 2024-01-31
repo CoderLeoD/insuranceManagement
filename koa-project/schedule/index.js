@@ -11,9 +11,6 @@ function refreshRemind() {
   rule2.hour = 0;
   rule2.minute = 30;
   rule2.second = 0;
-  rule2.hour = 16;
-  rule2.minute = 52;
-  rule2.second = 0;
   schedule.scheduleJob(REFRESH_REMIND, rule2, async function() {
     // 每天 00:30:00 刷新 is_remind 数据
     const refreshResults = await queryUtil.refreshReminded();

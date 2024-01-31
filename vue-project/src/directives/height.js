@@ -11,7 +11,7 @@ function siblings(elm) {
 
 export default function(app) {
   app.directive("height", {
-      mounted: function(el, bind) {
+      mounted: function(el) {
         // 被绑定元素插入父节点时调用 (仅保证父节点存在，但不一定已被插入文档中)
         const parentNodesH = el.parentNode.clientHeight
         const nodes = document.getElementById(el.id)

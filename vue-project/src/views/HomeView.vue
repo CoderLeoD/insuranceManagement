@@ -1,26 +1,76 @@
 <script setup>
-import { ref, watch } from 'vue';
-import { RouterLink, RouterView, useRouter } from 'vue-router';
+import api from '@/api'
+import { computed, onMounted, ref, watch } from 'vue'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 
-const router = useRouter();
+import RemindMessageBox from '@/views/components/RemindMessageBox.vue'
+import { ElMessage } from 'element-plus'
 
-const remindNum = ref(0);
+const router = useRouter()
+
+
+const remindList = ref([])
+
+const remindNum = computed(() => remindList.value?.filter(v => 1 === v.is_reminded)?.length)
 
 function logoutAction() {
   // 关闭当前标签页
-  window.open("about:blank","_self");
-  window.close();
+  window.open("about:blank","_self")
+  window.close()
 }
 
-function showRemind() {
-  console.log('xdl-展示提醒选项');
+onMounted(() => {
+  getRemindList()
+})
+
+function getRemindList() {
+  api.getRemindList().then(res => {
+    const { results, code } = res
+    if (200 === code) {
+      results.length && (remindList.value = results)
+    }
+  })
+}
+
+const rightNav = ref(null)
+const remindDetail = ref({})
+function showRemindDetail(row) {
+  rightNav.value.click()
+  remindDetail.value = row
+  remindVisible.value = true
+}
+
+const remindVisible = ref(false)
+
+function remindCancel() {
+  remindVisible.value = false
+}
+
+function remindedAction(remindData) {
+  api.updateRemind(remindData).then(res => {
+    if (200 === res.code) {
+      // 1, 提示用户
+      ElMessage({
+        message: '提醒状态更新成功',
+        type: 'success',
+      })
+      // 2, 修改当前页面数据状态
+      remindList.value.forEach(v => {
+        if (remindData.id === v.id) {
+          v.is_reminded = 2
+        }
+      })
+      // 3, 关闭 remind message box
+      remindCancel()
+    }
+  })
 }
 
 // 面包屑
-const breadcrumbItem = ref('');
+const breadcrumbItem = ref('')
 
 watch(() => router.currentRoute.value, async (newRoute) => {
-  const { name } = newRoute;
+  const { name } = newRoute
   if (name) {
     breadcrumbItem.value = {
       usersList: "客户管理",
@@ -29,9 +79,9 @@ watch(() => router.currentRoute.value, async (newRoute) => {
       insuranceList: "险种管理",
       insuranceAdd: "添加险种",
       insuranceEdit: "编辑险种",
-    }[name];
+    }[name]
   }
-}, { immediate: true });
+}, { immediate: true })
 </script>
 
 <template>
@@ -67,11 +117,30 @@ watch(() => router.currentRoute.value, async (newRoute) => {
             <el-breadcrumb-item>promotion detail</el-breadcrumb-item> -->
           </el-breadcrumb>
         </div>
-        <div class="mian_right_nav">
-          <div class="nav_remind" @click="showRemind">
-            <i class="iconfont icon-remind"></i>
-            <div v-if="remindNum" class="remind_tag">{{ remindNum }}</div>
-          </div>
+        <div class="mian_right_nav" ref="rightNav">
+          <el-popover
+            placement="bottom"
+            :width="300"
+            trigger="click"
+          >
+            <template #reference>
+              <div class="nav_remind">
+                <i class="iconfont icon-remind"></i>
+                <div v-if="remindNum" class="remind_tag">{{ remindNum }}</div>
+              </div>
+            </template>
+            <el-table :data="remindList" max-height="300">
+              <el-table-column width="150" label="提醒类型">
+                <template #default="scope">
+                  <div class="table_remind">
+                    <el-link type="primary" @click="showRemindDetail(scope.row)">{{ 'special_days' === scope.row.type ? '纪念日提醒' : '保费到期提醒' }}</el-link>
+                    <div v-if="1 === scope.row.is_reminded" class="table_remind_tag"></div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column width="100" property="user" label="客户姓名" />
+            </el-table>
+          </el-popover>
           <div class="logout_btn" @click="logoutAction">退出</div>
         </div>
       </div>
@@ -82,6 +151,12 @@ watch(() => router.currentRoute.value, async (newRoute) => {
       </div>
     </div>
   </main>
+  <RemindMessageBox
+    :visible="remindVisible"
+    :remindDetail="remindDetail"
+    @cancel="remindCancel"
+    @reminded="remindedAction"
+  ></RemindMessageBox>
 </template>
 
 <style scoped>
@@ -172,7 +247,6 @@ watch(() => router.currentRoute.value, async (newRoute) => {
           font-size: 12px;
           line-height: 100%;
           color: #fff;
-          z-index: -1;
         }
       }
       .logout_btn {
@@ -196,4 +270,18 @@ watch(() => router.currentRoute.value, async (newRoute) => {
     }
   }
 }
+</style>
+<style>
+.el-table td.el-table__cell .table_remind {
+    position: relative;
+    .table_remind_tag {
+      width: 6px;
+      height: 6px;
+      border-radius: 100px;
+      background-color: #ff0000;
+      position: absolute;
+      top: 2px;
+      left: -6px;
+    }
+  }
 </style>

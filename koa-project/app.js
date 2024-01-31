@@ -14,18 +14,12 @@ app.use(cors()); //后端允许跨域访问
 const index = require('./routes/index')
 const users = require('./routes/users')
 const insurance = require('./routes/insurance')
+const remind = require('./routes/remind')
 
-// // 自定义跨域中间件
-// var allowCORS = function(req, res, next) {
-//   res.header('Access-Control-Allow-Origin', req.headers.origin);
-//   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-//   res.header('Access-Control-Allow-Headers', 'Content-Type');
-//   res.header('Access-Control-Allow-Credentials', 'true');
+// schedule 定时任务
+const { refreshRemind } = require('./schedule/index')
+refreshRemind();
 
-//   next();
-// }
-// // 使用跨域中间件
-// app.use(allowCORS);
 
 
 // error handler
@@ -55,6 +49,7 @@ app.use(async (ctx, next) => {
 app.use(index.routes(), index.allowedMethods())
 app.use(users.routes(), users.allowedMethods())
 app.use(insurance.routes(), insurance.allowedMethods())
+app.use(remind.routes(), remind.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {

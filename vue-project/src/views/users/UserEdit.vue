@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import UserAddEdit from './components/UserAddEdit.vue'
 import { useRoute, useRouter } from 'vue-router'
-import api from '@/api';
+import api from '@/api'
 
 const router = useRouter()
 const route = useRoute()

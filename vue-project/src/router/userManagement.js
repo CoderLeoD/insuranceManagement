@@ -45,4 +45,4 @@ export const usersList = [
     name: 'insuranceList',
     component: () => import('../views/insurance/InsuranceList.vue'),
   },
-];
+]

@@ -16,9 +16,9 @@ defineProps({
     type: String,
     default: '请输入',
   },
-});
+})
 
-const model = defineModel();
+const model = defineModel()
 
 </script>
 

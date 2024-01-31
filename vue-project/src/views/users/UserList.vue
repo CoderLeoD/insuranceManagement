@@ -11,7 +11,7 @@ const dialogVisible = ref(false)
 const dialogDesc = ref('')
 
 // 搜索框
-const searchValue = ref('');
+const searchValue = ref('')
 
 // 页码
 const pageData = reactive({
@@ -53,7 +53,7 @@ function handleEdit(row) {
   })
 }
 // 删除
-let deleteId = -1;
+let deleteId = -1
 function handleDelete(row) {
   deleteId = row.id
   api.deleteUserValidate({
@@ -71,7 +71,7 @@ function handleDelete(row) {
  */
 // 关闭警示框
 function handleClose() {
-  dialogVisible.value = false;
+  dialogVisible.value = false
 }
 // 确认删除
 function confirmDelete() {
@@ -119,9 +119,9 @@ function handleCurrentChange(val) {
 </script>
 
 <template>
-  <div class="user_list_wrap mange_wrap">
+  <div class="mange_wrap">
     <!-- 一, 搜索 -->
-    <div class="search mange_search">
+    <div class="mange_search">
       <SearchInput
         v-model="searchValue"
         placeholder="请输入客户姓名"
@@ -130,7 +130,7 @@ function handleCurrentChange(val) {
       ></SearchInput>
     </div>
     <!-- 二, 用户列表 -->
-    <div class="user_list mange_con">
+    <div class="mange_con">
       <div id="tableBox" v-height>
         <el-table class="table_list" :data="tableData" border stripe style="width: 100%;" height="100%">
           <el-table-column align="center" type="index" label="序号" width="54" />
@@ -167,7 +167,7 @@ function handleCurrentChange(val) {
       </div>
     </div>
     <!-- 三, 页码 -->
-    <div class="footer mange_footer">
+    <div class="mange_footer">
       <el-pagination
         :page-sizes="[10]"
         background
@@ -195,19 +195,3 @@ function handleCurrentChange(val) {
     </template>
   </el-dialog>
 </template>
-
-<style scoped>
-.user_list_wrap {
-  /* 一, 搜索 */
-  .search {
-    
-  }
-  /* 二, 用户列表 */
-  .user_list {
-  }
-  /* 三, 页码 */
-  .footer {
-    
-  }
-}
-</style>

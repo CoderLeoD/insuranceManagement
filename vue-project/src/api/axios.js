@@ -1,6 +1,6 @@
-import loading from '@/utils/loading';
-import axios from 'axios';
-import { ElMessageBox } from 'element-plus';
+import loading from '@/utils/loading'
+import axios from 'axios'
+import { ElMessageBox } from 'element-plus'
 
 // 基础配置
 const instance = axios.create({

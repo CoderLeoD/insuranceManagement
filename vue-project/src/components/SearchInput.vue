@@ -1,26 +1,26 @@
 <script setup>
-import { Search } from '@element-plus/icons-vue';
+import { Search } from '@element-plus/icons-vue'
 
 defineProps({
   placeholder: {
     type: String,
   },
-});
+})
 
-const search = defineModel();
+const search = defineModel()
 
 const emit = defineEmits(['search', 'clear'])
 
-let oldSearch = '';
+let oldSearch = ''
 function searchAction() {
   if (oldSearch !== search.value) {
-    emit('search');
-    oldSearch = search.value;
+    emit('search')
+    oldSearch = search.value
   }
 }
 function clearAction() {
   oldSearch = ''
-  emit('clear');
+  emit('clear')
 }
 
 </script>

@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AddOrEdit from './components/AddOrEdit.vue'
-import api from '@/api';
+import api from '@/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -14,7 +14,7 @@ function cancelAction() {
   backList()
 }
 function editAction() {
-  dialogVisible.value = true;
+  dialogVisible.value = true
 }
 
 function backList() {

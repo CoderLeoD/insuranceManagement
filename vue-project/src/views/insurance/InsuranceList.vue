@@ -50,7 +50,7 @@ function handleDelete(row) {
   }).then(res => {
     if (200 === res.code) {
       dialogDesc.value = res.message
-      showDel.value = 2000 === res.messageCode;
+      showDel.value = 2000 === res.messageCode
       dialogVisible.value = true
     }
   })
@@ -106,8 +106,8 @@ function handleCurrentChange(val) {
 </script>
 
 <template>
-  <div class="insurance_type mange_wrap">
-    <div class="insurance_search mange_search">
+  <div class="mange_wrap">
+    <div class="mange_search">
       <SearchInput
         placeholder="请输入险种"
         v-model="searchValue"
@@ -115,7 +115,7 @@ function handleCurrentChange(val) {
         @clear="clearAction"
       ></SearchInput>
     </div>
-    <div class="insurance_con mange_con">
+    <div class="mange_con">
       <div id="tableBox" v-height>
         <el-table class="table_list" :data="tableData" border stripe style="width: 100%" height="100%">
           <el-table-column align="center" type="index" label="序号" width="54" />
@@ -138,7 +138,7 @@ function handleCurrentChange(val) {
         </el-table>
       </div>
     </div>
-    <div class="insurance_footer mange_footer">
+    <div class="mange_footer">
       <el-pagination
         :page-sizes="[10]"
         background
@@ -166,18 +166,3 @@ function handleCurrentChange(val) {
     </template>
   </el-dialog>
 </template>
-
-<style scoped>
-.insurance_type {
-  /* background-color: lightgoldenrodyellow; */
-  .insurance_search {
-    /* background-color: aquamarine; */
-  }
-  .insurance_con {
-    /* background-color: pink; */
-  }
-  .insurance_footer {
-    /* background-color: deeppink; */
-  }
-}
-</style>

@@ -1,6 +1,6 @@
 <template>
   <div class="about">
-    <h1>404</h1>
+    <h1>404 !</h1>
   </div>
 </template>
 
@@ -10,6 +10,8 @@
     min-height: 100vh;
     display: flex;
     align-items: center;
+    justify-content: center;
+    font-size: 48px;
   }
 }
 </style>

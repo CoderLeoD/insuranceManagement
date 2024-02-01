@@ -1,6 +1,7 @@
+import api from './basic'
 import axios from './axios'
 
-const basic = '/remind'
+const basic = `${api}/remind`
 
 const remind = {
   getRemindList: () => {

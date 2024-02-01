@@ -1,6 +1,7 @@
+import api from './basic'
 import axios from './axios'
 
-const basic = '/users'
+const basic = `${api}/users`
 
 const users = {
   getUserStatusList: () => {

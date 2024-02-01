@@ -1,7 +1,8 @@
 const router = require('koa-router')()
+const { database } = require('../config/default')
 const queryUtil = require('../service/query');
 
-router.prefix('/insurance')
+router.prefix(`${database.BASIC_URL}/insurance`)
 
 router.get('/type', async function (ctx, next) {
   ctx.body = await queryUtil.getInsuranceType();

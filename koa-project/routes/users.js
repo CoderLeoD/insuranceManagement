@@ -1,7 +1,8 @@
 const router = require('koa-router')()
+const { database } = require('../config/default')
 const queryUtil = require('../service/query');
 
-router.prefix('/users')
+router.prefix(`${database.BASIC_URL}/users`)
 
 router.get('/list', async function (ctx, next) {
   ctx.body = await queryUtil.getAllUsers(ctx.query);

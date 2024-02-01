@@ -4,7 +4,7 @@ import { ElMessageBox } from 'element-plus'
 
 // 基础配置
 const instance = axios.create({
-  baseURL: '/api', // 根据实际情况修改API地址
+  baseURL: import.meta.env.DEV ? '/api' : '', // 根据实际情况修改API地址
   timeout: 10000 // 设置超时时间，单位为ms
 })
 

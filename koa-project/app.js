@@ -6,10 +6,6 @@ const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 
-// 跨域相关配置
-const cors = require('koa2-cors') //引入koa2-cors
- 
-app.use(cors()); //后端允许跨域访问
 
 const index = require('./routes/index')
 const users = require('./routes/users')

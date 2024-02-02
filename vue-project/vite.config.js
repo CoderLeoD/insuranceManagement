@@ -13,8 +13,6 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  // 打包路径缺失.
-  base: process.env.NODE_ENV === 'production' ? './' : '/',
   server: {
     host: "0.0.0.0", // 指定服务器应该监听哪个 IP 地址。 如果将此设置为 0.0.0.0 或者 true 将监听所有地址，包括局域网和公网地址。
     open: false,
